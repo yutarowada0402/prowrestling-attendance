@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="公式発表に基づくプロレス興行・公表観衆のデータアーカイブ。団体別・月別・会場別の集計と収集状況を確認できます。">
+  <meta name="color-scheme" content="light"><title>RINGSIDE DATA — プロレス興行・動員アーカイブ</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <a class="skip" href="#main">コンテンツへ</a>
+  <aside class="rail">
+    <a class="brand" href="./" aria-label="Ringside Data ホーム"><span class="brand-icon">R<span>・</span></span><span>RINGSIDE<span class="brand-data">DATA</span></span></a>
+    <div class="rail-label">DATA OBSERVATORY</div>
+    <nav aria-label="表示切り替え"><button class="nav active" data-tab="overview" aria-current="page"><span>◫</span> 概況・推移</button><button class="nav" data-tab="events"><span>≡</span> 興行データ</button><button class="nav" data-tab="coverage"><span>▦</span> 収集状況</button></nav>
+    <div class="rail-foot"><span class="live-dot"></span> 公式発表を記録<br><small>FACTS. WITH PROVENANCE.</small><a href="https://github.com/yutarowada0402/prowrestling-attendance" target="_blank" rel="noopener">GitHub / データと仕様 ↗</a></div>
+  </aside>
+  <div class="workspace">
+    <header class="topbar"><span>プロレス興行・公表観衆アーカイブ</span><span class="update" id="updated">データを読み込み中</span></header>
+    <main id="main">
+      <div class="heading"><div><p class="eyebrow">THE NUMBERS BEHIND THE RING</p><h1>興行を知る。<span>動員をたどる。</span></h1><p class="intro">公式発表の観衆を、団体・時期・会場から読み解く。</p></div><a class="button download" href="./data/events.csv" download>↓ 全データ CSV</a></div>
+      <section class="filters" aria-label="集計条件"><label>対象年<select id="year"><option>読込中</option></select></label><label>主集計団体<select id="promotion"><option value="all">すべての団体</option></select></label><label>開催地<select id="country"><option value="domestic">国内のみ</option><option value="all">すべて（国不明を含む）</option></select></label><div class="filter-note"><span class="live-dot"></span> 開催済み興行 / 公表値ベース</div></section>
+      <div id="error" role="alert" hidden></div>
+      <p class="scope-note" id="scope" aria-live="polite">読み込み中…</p>
+      <section id="overview" class="tab-panel">
+        <div class="metrics" id="metrics"></div>
+        <div class="chart-grid"><section class="panel trend"><div class="panel-heading"><div><p class="eyebrow">MONTHLY TREND</p><h2>月別の動員推移</h2></div><div class="segmented" aria-label="推移の指標"><button data-metric="total" class="selected" aria-pressed="true">合計</button><button data-metric="mean" aria-pressed="false">平均</button></div></div><div id="monthly" class="chart" role="img" aria-label="月別公表観衆"></div><div id="chart-legend" class="chart-legend"></div></section>
+        <section class="panel venue-panel"><div class="panel-heading"><div><p class="eyebrow">VENUE RANKING</p><h2>会場別の公表観衆</h2></div><span class="badge">TOP 6</span></div><div id="venues"></div><p class="small-note">会場名寄せはマスターに基づきます。未登録表記は別会場として表示されます。</p></section></div>
+        <section class="panel comparison"><div><p class="eyebrow">CHANGE IN ATTENDANCE</p><h2>前年との変化を分解</h2><p id="comparison-scope" class="small-note"></p></div><div id="comparison"></div></section>
+      </section>
+      <section id="events" class="tab-panel" hidden><section class="panel"><div class="panel-heading"><div><p class="eyebrow">EVENT ARCHIVE</p><h2>開催済み興行データ</h2></div><label class="search-label"><span class="sr-only">大会・会場を検索</span><input id="search" type="search" placeholder="大会名・会場を検索"></label></div><div class="table-scroll"><table><thead><tr><th><button id="sort-date">開催日 ↓</button></th><th>団体 / 大会</th><th>会場</th><th class="numeric">公表観衆</th><th>出典</th></tr></thead><tbody id="event-rows"></tbody></table></div><div class="pagination"><span id="event-count"></span><div><button id="previous" class="button">← 前へ</button><button id="next" class="button">次へ →</button></div></div></section></section>
+      <section id="coverage" class="tab-panel" hidden><section class="panel"><div class="panel-heading"><div><p class="eyebrow">COLLECTION COVERAGE</p><h2>どこまで収集できているか</h2></div><span class="badge">一覧巡回の状態</span></div><p class="small-note">「確認済み」は当該公式サイトの一覧を確認した意味です。実際の全興行を網羅した保証ではありません。</p><div class="table-scroll" id="coverage-grid"></div><div class="coverage-legend"><span><i class="complete"></i>一覧確認済み</span><span><i class="partial"></i>一部取得・失敗</span><span><i class="unsupported"></i>未対応・未取得</span></div></section></section>
+      <footer><div class="foot-brand">RINGSIDE DATA<span>PUBLIC ATTENDANCE ARCHIVE</span></div><p>公表観衆は、ユニーク観戦者数・有料入場者数・売上ではありません。<br>未公表値は0人に置換せず、平均・中央値は観衆判明興行のみで計算しています。</p><a href="https://github.com/yutarowada0402/prowrestling-attendance/blob/main/docs/methodology.md" target="_blank" rel="noopener">集計定義・制約を読む ↗</a></footer>
+    </main>
+  </div>
+  <script type="module" src="./app.mjs"></script>
+</body>
+</html>

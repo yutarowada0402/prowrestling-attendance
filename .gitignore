@@ -13,3 +13,4 @@ dbt/logs/
 .env
 *.html
 !tests/fixtures/*.html
+!site/*.html
