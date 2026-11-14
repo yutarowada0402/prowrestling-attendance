@@ -61,4 +61,8 @@ https://github.com/yutarowada0402/prowrestling-attendance
 - ブラウザー検証: Chromiumで1440pxのPCと390pxのモバイルを確認。団体フィルター、合計/平均切替、タブ、検索、CSVリンクが動作し、JavaScript例外0、モバイル横はみ出しなし。スクリーンショットはローカル `var/browser/`（Git対象外）。
 - 最終ローカル検証: pytest 25件成功、JavaScript集計テスト成功、ruff成功。3団体と全期間の実データでdbtの20モデル/11品質テストを実行。未登録会場で情報源ごとの国判定根拠が異なる場合もdimの会場IDが重複しないことを回帰テストした。
 - ダッシュボードの前年比較は、前年に未収集の団体がある場合や対象月のcoverageが不足する場合に抑止。異なる団体集合を比較して架空の増減率を表示しない。
-- 静的配布物は `site/`＋最新exportsだけ。公開URL: https://yutarowada0402.github.io/prowrestling-attendance/ 。Pagesデプロイと3団体の更新Actionsの最終結果は実行後に追記する。
+- 静的配布物は `site/`＋最新exportsだけ。公開URL: https://yutarowada0402.github.io/prowrestling-attendance/ 。リポジトリ公開・Pages公開は利用者の明示依頼による。
+- 公開URLをHTTP 200で確認し、Chromiumで公開ページの団体フィルター・タブ・検索・CSV・モバイル表示を検証。JavaScript例外0、横はみ出しなし。
+- [最終CI](https://github.com/yutarowada0402/prowrestling-attendance/actions/runs/43587809419) と [Pages初回公開](https://github.com/yutarowada0402/prowrestling-attendance/actions/runs/43587809520) はsuccess。HTML追跡漏れを修正したcommitで公開された。
+- [3団体手動収集](https://github.com/yutarowada0402/prowrestling-attendance/actions/runs/43587823343): 2025年の一覧333件を発見（NOAH96、新日本157、全日本80）、各団体のlimit=1で詳細を取得。1 changed / 2 unchanged / 0 failed、収集statusはlimit適用を反映したpartial。dbt build/export/品質ゲート成功し、診断Artifactも保存された。再実行で重複を増やさないことを確認。
+- 収集データcommit [73e68e8](https://github.com/yutarowada0402/prowrestling-attendance/commit/73e68e891b7d5fe22122275bb4d8ca749a42bb80) がmainへpushされ、[その後のPages公開](https://github.com/yutarowada0402/prowrestling-attendance/actions/runs/43587963147) もsuccess。収集→正本commit→静的サイト再公開を実動確認した。
