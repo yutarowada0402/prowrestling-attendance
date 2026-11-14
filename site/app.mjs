@@ -2,7 +2,8 @@ import {names,summary,eligible,monthly,priorPeriod} from './model.mjs';
 const $=s=>document.querySelector(s);
 const fmt=(n,d=0)=>n===null||n===undefined?'—':Number(n).toLocaleString('ja-JP',{maximumFractionDigits:d});
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let all=[],coverage=[],metric='total',page=0,descending=true;
+let all=[],coverage=[],metric='total',cmpMetric='total',page=0,descending=true;
+const promoColors={njpw:'#175fc3',noah:'#1f9d66',ajpw:'#e07b2a'};
 let state={year:'2025',promotion:'all',country:'domestic'};
 function card(label,value,unit,detail,icon,extra=''){return `<article class="metric"><h2 class="metric-label">${label}<span class="metric-icon" aria-hidden="true">${icon}</span></h2><div class="metric-value">${value}<small>${unit}</small></div><p class="metric-detail">${detail}</p>${extra}</article>`;}
 function render(){
@@ -14,7 +15,7 @@ function render(){
  const relevant=coverage.filter(c=>(state.year==='all'||c.month.startsWith(state.year))&&(state.promotion==='all'||c.source===state.promotion));
  const partial=relevant.filter(c=>c.status!=='listing_complete').length;
  $('#scope').textContent=`${state.year==='all'?'収集済み全期間':state.year+'年'} / ${state.promotion==='all'?'全団体（event_idで重複排除）':names[state.promotion]} / ${state.country==='domestic'?'国内・開催済み':'国不明を含む全開催地・開催済み'}。${partial?`一部取得・未対応の月が ${partial} 件あります。`:'収集された興行を対象に集計。'} 公式サイトの掲載範囲と現実の全興行の網羅性は異なります。${state.country==='domestic'?` 国不明の除外 ${eligible(all,{...state,country:'all'}).filter(e=>e.country_code===null).length} 大会。`:''}`;
- renderChart(rows);renderVenues(rows);renderComparison(rows);renderTable();renderCoverage();
+ renderChart(rows);renderVenues(rows);renderComparison(rows);renderCompare();renderTable();renderCoverage();
 }
 function renderChart(rows){
  let data=monthly(rows);
@@ -39,6 +40,33 @@ function renderComparison(rows){let p=priorPeriod(all,rows,state);if(p){const so
  const val=(label,v,unit,detail)=>`<div class="compare-value"><span>${label}</span><strong>${v}${unit}</strong><small>${detail}</small></div>`;
  const change=p.current.count-p.previous.count;
  $('#comparison').innerHTML=`<div class="compare-values">${val('開催興行数の差',(change>0?'+':'')+fmt(change),' 大会',`前年 ${fmt(p.previous.count)} → 今期 ${fmt(p.current.count)}`)}${val('公表観衆合計 前年比',p.yoy===null?'—':(p.yoy>0?'+':'')+fmt(p.yoy*100,1),'%',`前年 ${fmt(p.previous.total)} 人`)}${val('判明興行の平均の差',p.current.mean===null||p.previous.mean===null?'—':fmt(p.current.mean-p.previous.mean,1),' 人',`前年 ${fmt(p.previous.mean,1)} 人`)}</div><p class="small-note">合計差の内訳：判明件数効果 ${fmt(p.countEffect,1)} 人 ＋ 平均効果 ${fmt(p.meanEffect,1)} 人。判明率の変化も含みます。</p>`;}
+function renderCompare(){
+ const latestYear=[...new Set(all.map(e=>e.event_date.slice(0,4)))].sort().at(-1);
+ const year=state.year==='all'?latestYear:state.year;
+ const per=Object.keys(names).map(id=>{const rows=eligible(all,{year,promotion:id,country:state.country});return{id,rows,s:summary(rows)};}).filter(p=>p.s.count>0);
+ const notes=[`${year}年 / ${state.country==='domestic'?'国内のみ':'すべての開催地'} で団体ごとに集計しています。上の主集計団体フィルターは比較には適用されません。`];
+ if(state.year==='all')notes.push(`「すべての年」が選択されているため、データのある最新年で比較しています。`);
+ if(per.length===1)notes.push(`この年にデータがあるのは ${names[per[0].id]} のみです。`);
+ $('#compare-note').textContent=notes.join(' ');
+ const totalSum=per.reduce((a,p)=>a+(p.s.total??0),0);
+ $('#compare-cards').innerHTML=per.length?per.map(p=>{const top=p.rows.filter(r=>Number.isInteger(r.attendance_reported)).sort((a,b)=>b.attendance_reported-a.attendance_reported)[0];const share=p.s.total!==null&&totalSum?p.s.total/totalSum:null;
+  return `<article class="promo-card" style="--promo:${promoColors[p.id]}"><h3 class="promo-name"><i></i>${esc(names[p.id])}</h3><div class="promo-total">${fmt(p.s.total)}<small>人 / 公表観衆合計</small></div><dl class="promo-stats"><div><dt>開催興行数</dt><dd>${fmt(p.s.count)} 大会</dd></div><div><dt>1興行平均</dt><dd>${fmt(p.s.mean,1)} 人</dd></div><div><dt>中央値</dt><dd>${fmt(p.s.median,1)} 人</dd></div><div><dt>観衆判明率</dt><dd>${p.s.rate===null?'—':fmt(p.s.rate*100,1)+' %'}</dd></div></dl><div class="rate-track"><span style="width:${(p.s.rate??0)*100}%"></span></div>${top?`<p class="promo-top">最大興行：${esc(top.event_name)}<br><small>${top.event_date} / ${esc(top.venue)} / ${fmt(top.attendance_reported)} 人</small></p>`:'<p class="promo-top">観衆が判明した興行はありません。</p>'}<div class="share"><span>動員シェア</span><div class="venue-track"><span style="width:${share===null?0:share*100}%"></span></div><strong>${share===null?'—':fmt(share*100,1)+' %'}</strong></div></article>`;}).join(''):'<p class="empty">この条件で比較できるデータはまだありません。</p>';
+ renderCompareChart(per,year);
+}
+function renderCompareChart(per,year){
+ const box=$('#compare-chart'),legend=$('#compare-legend');
+ if(!per.length){box.innerHTML='';legend.innerHTML='';return;}
+ const series=per.map(p=>({id:p.id,byMonth:new Map(monthly(p.rows).map(d=>[d.month,d]))}));
+ const months=Array.from({length:12},(_,i)=>`${year}-${String(i+1).padStart(2,'0')}`);
+ const W=700,H=290,L=48,R=12,T=24,B=40,plotH=H-T-B,plotW=W-L-R;
+ const max=Math.max(...months.flatMap(m=>series.map(s=>s.byMonth.get(m)?.[cmpMetric]??0)),1),ceil=Math.ceil(max/4/Math.pow(10,Math.floor(Math.log10(max/4))))*Math.pow(10,Math.floor(Math.log10(max/4)))*4;
+ const step=plotW/12,groupW=step*.72,bar=groupW/series.length;
+ let svg=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="団体別の月別${cmpMetric==='total'?'合計':'平均'}公表観衆">`;
+ for(let i=0;i<=4;i++){const y=T+plotH*(1-i/4);svg+=`<line x1="${L}" y1="${y}" x2="${W-R}" y2="${y}" stroke="#edf1f5"/><text x="${L-10}" y="${y+4}" text-anchor="end">${fmt(ceil*i/4)}</text>`;}
+ months.forEach((m,i)=>{series.forEach((s,j)=>{const d=s.byMonth.get(m),value=d?d[cmpMetric]:null;if(value===null||value===undefined)return;const h=(value/ceil)*plotH,x=L+step*i+(step-groupW)/2+bar*j;svg+=`<rect x="${x}" y="${T+plotH-h}" width="${Math.max(bar-1,1)}" height="${Math.max(h,1)}" rx="2" fill="${promoColors[s.id]}"><title>${esc(names[s.id])} ${m}: ${fmt(value,1)}人 / ${d.known}大会判明</title></rect>`;});svg+=`<text x="${L+step*(i+.5)}" y="${H-14}" text-anchor="middle">${i+1}月</text>`;});
+ svg+='</svg>';box.innerHTML=svg;
+ legend.innerHTML=series.map(s=>`<span><i style="background:${promoColors[s.id]}"></i>${esc(names[s.id])}</span>`).join('')+`<span>${cmpMetric==='total'?'公表観衆合計':'判明興行あたり平均'}（人）/ 未公表の月は棒なし</span>`;
+}
 function renderTable(){let rows=eligible(all,state);const search=$('#search').value.trim().toLowerCase();if(search)rows=rows.filter(r=>`${r.event_name} ${r.venue}`.toLowerCase().includes(search));rows.sort((a,b)=>(descending?-1:1)*a.event_date.localeCompare(b.event_date)||a.event_id.localeCompare(b.event_id));
  const start=page*30;$('#event-rows').innerHTML=rows.slice(start,start+30).map(r=>`<tr><td>${r.event_date}<br><small class="unknown">${r.start_time||'時刻不明'}</small></td><td><span class="promotion">${esc(names[r.primary_promotion_id]||r.primary_promotion_id)}</span><span class="event-name">${esc(r.event_name)}</span></td><td>${esc(r.venue)}</td><td class="numeric">${r.attendance_reported===null?'<span class="unknown">未公表</span>':fmt(r.attendance_reported)+' 人'}${r.conflict_flag?'<br><span class="unknown">競合・要確認</span>':''}</td><td>${/^https:\/\/(www\.noah\.co\.jp|www\.njpw\.co\.jp|www\.all-japan\.co\.jp)\//.test(r.source_url)?`<a class="source-link" href="${esc(r.source_url)}" target="_blank" rel="noopener">公式 ↗</a>`:'—'}</td></tr>`).join('')||'<tr><td colspan="5" class="empty">該当する興行がありません。</td></tr>';
  $('#event-count').textContent=`${fmt(rows.length)} 大会中 ${rows.length?start+1:0}–${Math.min(start+30,rows.length)} 件`;$('#previous').disabled=page===0;$('#next').disabled=start+30>=rows.length;
@@ -49,5 +77,6 @@ async function load(){try{const [eventsResponse,coverageResponse,manifestRespons
 for(const id of ['year','promotion','country'])$('#'+id).addEventListener('change',e=>{state[id]=e.target.value;render();});
 document.querySelectorAll('[data-tab]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('.tab-panel').forEach(p=>p.hidden=p.id!==button.dataset.tab);document.querySelectorAll('[data-tab]').forEach(b=>{b.classList.toggle('active',b===button);if(b===button)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});}));
 document.querySelectorAll('[data-metric]').forEach(button=>button.addEventListener('click',()=>{metric=button.dataset.metric;document.querySelectorAll('[data-metric]').forEach(b=>{b.classList.toggle('selected',b===button);b.setAttribute('aria-pressed',String(b===button));});renderChart(eligible(all,state));}));
+document.querySelectorAll('[data-cmp-metric]').forEach(button=>button.addEventListener('click',()=>{cmpMetric=button.dataset.cmpMetric;document.querySelectorAll('[data-cmp-metric]').forEach(b=>{b.classList.toggle('selected',b===button);b.setAttribute('aria-pressed',String(b===button));});renderCompare();}));
 $('#search').addEventListener('input',()=>{page=0;renderTable();});$('#sort-date').addEventListener('click',()=>{descending=!descending;$('#sort-date').textContent=`開催日 ${descending?'↓':'↑'}`;renderTable();});$('#previous').addEventListener('click',()=>{page--;renderTable();});$('#next').addEventListener('click',()=>{page++;renderTable();});
 load();
