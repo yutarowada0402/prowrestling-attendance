@@ -1,7 +1,12 @@
-name: Collect NOAH
+name: Collect wrestling data
 on:
   workflow_dispatch:
     inputs:
+      source:
+        type: choice
+        options: [all, noah, njpw, ajpw]
+        default: all
+        description: Official sources to collect
       mode:
         type: choice
         options: [update, collect]
@@ -53,6 +58,7 @@ jobs:
           COLLECT_FROM: ${{ inputs.date_from }}
           COLLECT_TO: ${{ inputs.date_to }}
           COLLECT_LIMIT: ${{ inputs.limit || '100' }}
+          COLLECT_SOURCE: ${{ inputs.source || 'all' }}
         run: uv run --frozen python scripts/actions_collect.py
       - name: Build, export and gate persistence on quality
         run: |
@@ -65,7 +71,7 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add data exports
           if ! git diff --cached --quiet; then
-            git commit -m 'data: update NOAH observations and exports'
+            git commit -m 'data: update official observations and exports'
             git push origin HEAD:main
           fi
       - name: Summary

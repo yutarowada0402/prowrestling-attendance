@@ -21,6 +21,7 @@ COLS = {
     "start_time": "VARCHAR",
     "timezone": "VARCHAR",
     "country_code": "VARCHAR",
+    "prefecture_raw": "VARCHAR",
     "promotion_raw": "VARCHAR",
     "event_name_raw": "VARCHAR",
     "venue_raw": "VARCHAR",
@@ -114,7 +115,7 @@ def load(root):
                 f"insert into raw_{name} values (" + ",".join("?" for _ in columns) + ")",
                 [row.get(c) or None for c in columns],
             )
-    coverage = [json.loads(p.read_text()) for p in sorted((root / "data/coverage").glob("*/*-??.json"))]
+    coverage = [json.loads(p.read_text()) for p in sorted((root / "data/coverage").glob("*/????-??.json"))]
     con.execute(
         "create or replace table raw_coverage (source varchar, month varchar, status varchar, discovered bigint, collected bigint, failed bigint)"
     )

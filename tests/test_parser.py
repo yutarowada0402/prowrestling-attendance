@@ -38,6 +38,12 @@ def test_missing_date_fails(html):
         parse_event(html.replace("2025年01月01日", "未定"), "https://www.noah.co.jp/schedule/900001/")
 
 
+def test_missing_venue_is_explicit_unknown(html):
+    row = parse_event(html.replace("東京・後楽園ホール", ""), "https://www.noah.co.jp/schedule/900001/")
+    assert row["venue_raw"] is None and row["country_code"] is None
+    assert "venue_unknown" in row["extraction_warnings"]
+
+
 def test_scheduled_is_not_held(html):
     html = html.replace("<dt>観衆</dt><dd>1,234人（札止め）</dd>", "")
     event = parse_event(

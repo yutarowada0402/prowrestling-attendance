@@ -8,7 +8,7 @@ quality_path = Path("exports/quality_summary.json")
 if quality_path.exists():
     report["conflicts"] = json.loads(quality_path.read_text())["conflicts"]
 with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
-    f.write("### NOAH collection\n\n")
+    f.write("### Official attendance collection\n\n")
     for key in (
         "date_from",
         "date_to",

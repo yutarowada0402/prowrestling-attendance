@@ -14,10 +14,15 @@ def main():
     subs = parser.add_subparsers(dest="command", required=True)
     for command in ("discover", "collect", "update"):
         p = subs.add_parser(command)
-        p.add_argument("--source", choices=["noah"], default="noah")
+        p.add_argument("--source", choices=["noah", "njpw", "ajpw"], default="noah")
         p.add_argument("--from", dest="start", type=date.fromisoformat)
         p.add_argument("--to", dest="end", type=date.fromisoformat)
         p.add_argument("--limit", type=int, help="Maximum detail requests; discovery still checks listings")
+        p.add_argument(
+            "--retry-failed",
+            action="store_true",
+            help="Recheck listings, then fetch only URLs with saved failures",
+        )
         p.add_argument(
             "--dry-run",
             action="store_true",
@@ -54,6 +59,7 @@ def main():
             args.dry_run,
             args.command == "discover",
             args.command == "update",
+            retry_failed=args.retry_failed,
         )
     except Exception as e:
         if not args.dry_run:

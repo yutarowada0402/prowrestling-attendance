@@ -7,7 +7,7 @@ from urllib.parse import urljoin, urlsplit, urlunsplit
 
 from bs4 import BeautifulSoup
 
-PARSER_VERSION = "noah-1"
+PARSER_VERSION = "noah-3"
 
 
 def normalize_url(url, base="https://www.noah.co.jp"):
@@ -39,7 +39,7 @@ def fields(node):
 
 
 def text(node):
-    return node.get_text(" ", strip=True) if node else None
+    return (node.get_text(" ", strip=True) or None) if node else None
 
 
 def parse_date(value):
@@ -62,6 +62,7 @@ def listing(html, base):
             "url": url,
             "event_date": parse_date(text(f.get("日程"))),
             "discovered_as": "result" if "/result/" in base else "schedule",
+            "venue_hint": text(article.select_one("dt.heading")),
         }
     if not events:
         raise ValueError("listing_structure_changed: no dated event links")
@@ -74,7 +75,7 @@ def listing(html, base):
     return list(events.values()), sorted(set(pages)), years
 
 
-def parse_event(html, url, today=None, discovered_as="result"):
+def parse_event(html, url, today=None, discovered_as="result", venue_hint=None):
     soup = BeautifulSoup(html, "html.parser")
     block = soup.select_one("dl.desc-list")
     if not block:
@@ -88,7 +89,7 @@ def parse_event(html, url, today=None, discovered_as="result"):
     title = block.find_parent("dd").find_previous_sibling("dt")
     name = text(title)
     venue = text(f.get("会場"))
-    if not venue or not name:
+    if not name:
         raise ValueError("event_identity_missing")
     # Domestic attribution needs an explicit Japanese region, never assume from promotion.
     regions = [
@@ -140,7 +141,19 @@ def parse_event(html, url, today=None, discovered_as="result"):
         "鹿児島",
         "沖縄",
     ]
-    domestic = any(venue.startswith(r) for r in regions)
+    region = next((r for r in regions if (venue or "").startswith(r)), None)
+    if not region and venue_hint:
+        region = next((r for r in regions if venue_hint.startswith(r)), None)
+    domestic = region is not None
+    prefecture = (
+        (
+            region
+            if region == "北海道"
+            else region + ("都" if region == "東京" else "府" if region in ("京都", "大阪") else "県")
+        )
+        if region
+        else None
+    )
     now = (today or date.today()).isoformat()
     held = d <= now and (discovered_as == "result" or n is not None)
     event_status = "held" if held else "scheduled" if d > now else "unknown"
@@ -150,6 +163,8 @@ def parse_event(html, url, today=None, discovered_as="result"):
     elif re.search(r"(?:開催延期|【延期】)", name):
         event_status = "postponed"
     warnings = []
+    if not venue:
+        warnings.append("venue_unknown")
     if not time_value:
         warnings.append("start_time_unknown")
     if raw and n is None:
@@ -164,6 +179,7 @@ def parse_event(html, url, today=None, discovered_as="result"):
         "start_time": time_value,
         "timezone": "Asia/Tokyo" if domestic else None,
         "country_code": "JP" if domestic else None,
+        "prefecture_raw": prefecture,
         "promotion_raw": "プロレスリング・ノア",
         "event_name_raw": name,
         "venue_raw": venue,

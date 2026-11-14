@@ -13,6 +13,7 @@ UTF-8、1行1JSON object、キーは辞書順、行は source_event_id/fetched_a
 |parser_version / response_hash|抽出ロジック版 / 元HTML SHA-256|
 |event_date / start_time|開催地の日付YYYY-MM-DD / HH:MM、不明はnull|
 |timezone / country_code|根拠がある国内はAsia/Tokyo / JP、それ以外はnull|
+|prefecture_raw|公式の会場地域・一覧見出しから明示的に確認できた都道府県。古い観測または不明はnull|
 |promotion_raw / event_name_raw / venue_raw|元の表記|
 |attendance_raw / attendance_reported|観衆原文 / 非負整数またはnull|
 |attendance_status|reported / unknown / explicitly_zero|
@@ -34,3 +35,5 @@ UTF-8、1行1JSON object、キーは辞書順、行は source_event_id/fetched_a
 - `exports/*.csv` と `*.json`: 安定列順/行順、CSVの欠損は空セル、JSON欠損はnull。日付はYYYY-MM-DD。quality_summaryの率も数値、0件の率はnull。
 
 HTMLは本文を含むためGitへ追加しない。再配布可能な最小合成fixture以外はtestsへ転載しない。
+
+新日本の元レスポンスはJSONだが、ローカルrawキャッシュの互換上 `.html.gz` の拡張子で保存する。中身を自動的にHTMLとみなさず、source adapterが形式を決める。Git/Pagesへ元レスポンスを公開しない。会場欄が空でもsource ID・開催日・大会名が確認できる場合は venue_raw=null と venue_unknown 警告を保存する。

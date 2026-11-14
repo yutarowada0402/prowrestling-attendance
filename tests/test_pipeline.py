@@ -13,6 +13,24 @@ from prowrestling_data.storage import atomic, dumps, observations, save_observat
 URL = "https://www.noah.co.jp/schedule/900001/"
 
 
+def test_unclassified_venue_with_different_country_evidence(root, html):
+    event = {**parse_event(html, URL), "venue_raw": "合成未登録会場", "country_code": None}
+    save_observation(root, event, html, "2026-01-01T00:00:00Z")
+    second = {
+        **event,
+        "source_event_id": "900002",
+        "source_url": URL.replace("900001", "900002"),
+        "country_code": "JP",
+    }
+    save_observation(root, second, html, "2026-01-02T00:00:00Z")
+    build(root)
+    with duckdb.connect(str(root / "var/attendance.duckdb")) as con:
+        assert (
+            con.execute("select count(*) from dim_venues where display_name='合成未登録会場'").fetchone()[0]
+            == 1
+        )
+
+
 def test_history_rebuild_overrides_and_aggregates(root, html):
     event = parse_event(html, URL)
     oid, changed = save_observation(root, event, html, "2026-01-01T00:00:00Z")

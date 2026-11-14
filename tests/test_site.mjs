@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {summary,eligible,priorPeriod} from '../site/model.mjs';
+const e=(id,day,n,p='noah')=>({event_id:id,event_date:day,attendance_reported:n,primary_promotion_id:p,event_status:'held',country_code:'JP'});
+assert.deepEqual(summary([e('a','2025-01-01',0),e('b','2025-01-01',null)]),{count:2,known:1,total:0,mean:0,median:0,rate:.5});
+assert.equal(summary([e('a','2025-01-01',null)]).total,null);
+assert.equal(summary([e('a','2025-01-01',10),e('a','2025-01-01',10)]).count,1);
+assert.equal(eligible([e('a','2025-01-01',10),{...e('b','2025-01-01',20),country_code:null}]).length,1);
+const rows=[e('a','2025-06-01',100),e('b','2024-06-01',50),e('c','2024-12-01',1000)];
+const p=priorPeriod(rows,[rows[0]],{year:'2025',promotion:'noah',country:'domestic'});
+assert.equal(p.previous.total,50);assert.equal(p.yoy,1);assert.equal(p.countEffect+p.meanEffect,50);
+assert.equal(priorPeriod([...rows,e('d','2025-03-01',10,'njpw')],[rows[0],e('d','2025-03-01',10,'njpw')],{year:'2025',promotion:'all',country:'domestic'}),null);
+console.log('Dashboard model: nulls, zero, deduplication, filters and matched YTD passed');

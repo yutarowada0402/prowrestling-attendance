@@ -1,0 +1,43 @@
+name: Publish dashboard
+on:
+  push:
+    branches: [main]
+    paths: ['site/**', 'exports/**', 'data/**', 'scripts/build_site.py', '.github/workflows/pages.yml']
+  workflow_dispatch:
+  workflow_run:
+    workflows: ['Collect wrestling data']
+    types: [completed]
+permissions:
+  contents: read
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+jobs:
+  build:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --frozen
+      - run: node tests/test_site.mjs
+      - run: uv run --frozen python scripts/build_site.py
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v4
+        id: deployment

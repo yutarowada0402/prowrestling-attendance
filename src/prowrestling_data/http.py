@@ -20,20 +20,23 @@ class Fetcher:
     _locks = {}
     _last = {}
 
-    def __init__(self, interval=3, client=None, sleep=time.sleep, clock=time.monotonic):
+    def __init__(self, interval=3, client=None, sleep=time.sleep, clock=time.monotonic, allowed_hosts=None):
         self.interval = max(3, interval)
         self.client = client or httpx.Client(timeout=30, headers={"User-Agent": USER_AGENT})
         self.sleep, self.clock = sleep, clock
         self.robots = None
+        self.robots_by_host = {}
+        self.allowed_hosts = set(allowed_hosts or ["www.noah.co.jp"])
         self.stopped = False
 
     def get(self, url, headers=None):
         host = urlsplit(url).netloc
         if self.stopped:
             raise SourceStopped("source already stopped")
-        if host != "www.noah.co.jp":
+        if host not in self.allowed_hosts:
             raise SourceStopped("unexpected host")
-        if self.robots and not self.robots.can_fetch(USER_AGENT, url):
+        robot = self.robots_by_host.get(host)
+        if robot and not robot.can_fetch(USER_AGENT, url):
             self.stopped = True
             raise SourceStopped("robots disallow")
         lock = self._locks.setdefault(host, threading.Lock())
@@ -90,6 +93,7 @@ class Fetcher:
         robot = RobotFileParser()
         robot.parse(r.text.splitlines())
         self.robots = robot
+        self.robots_by_host[urlsplit(base).netloc] = robot
         self.interval = max(self.interval, robot.crawl_delay(USER_AGENT) or robot.crawl_delay("*") or 0)
         rate = robot.request_rate(USER_AGENT) or robot.request_rate("*")
         if rate:

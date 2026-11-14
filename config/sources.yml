@@ -6,3 +6,20 @@ noah:
   max_pages: 100
   priority: 1
   enabled: true
+njpw:
+  adapter: njpw
+  base_url: https://www.njpw.co.jp
+  extra_robots: [https://app.njpw.co.jp]
+  allowed_hosts: [www.njpw.co.jp, app.njpw.co.jp]
+  min_interval: 3
+  max_pages: 100
+  priority: 1
+  enabled: true
+ajpw:
+  adapter: ajpw
+  base_url: https://www.all-japan.co.jp
+  allowed_hosts: [www.all-japan.co.jp]
+  min_interval: 3
+  max_pages: 100
+  priority: 1
+  enabled: true

@@ -50,8 +50,10 @@ def save_observation(root, extracted, html, timestamp=None):
     now = timestamp or utcnow()
     from .parser import PARSER_VERSION
 
+    version = {"noah": PARSER_VERSION, "njpw": "njpw-1", "ajpw": "ajpw-1"}[extracted["source"]]
+
     # Fetch metadata and ads never participate in the identity.
-    oid = digest(dumps([extracted, PARSER_VERSION]))
+    oid = digest(dumps([extracted, version]))
     existing = observations(root)
     if any(o["observation_id"] == oid for o in existing):
         return oid, False
@@ -63,7 +65,7 @@ def save_observation(root, extracted, html, timestamp=None):
     obs = {
         **extracted,
         "observation_id": oid,
-        "parser_version": PARSER_VERSION,
+        "parser_version": version,
         "first_observed_at": min([o["first_observed_at"] for o in prior] + [now]),
         "fetched_at": now,
         "response_hash": digest(html),

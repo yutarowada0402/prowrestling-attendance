@@ -9,6 +9,10 @@ from .storage import atomic, digest, dumps, read_json, save_observation, utcnow
 
 
 def discover(fetcher, config, start, end, max_pages=None, include_schedule=False):
+    if config.get("adapter") in ("njpw", "ajpw"):
+        from .adapters import discover_official
+
+        return discover_official(fetcher, config, start, end)
     base = config["base_url"]
     queue = [base + config["listing_path"]]
     visited, found, failures, supported = set(), {}, [], []
@@ -58,13 +62,16 @@ def run(
     discover_only=False,
     include_schedule=False,
     fetcher=None,
+    retry_failed=False,
 ):
     cfgs = yaml.safe_load((root / "config/sources.yml").read_text())
     if source not in cfgs or not cfgs[source]["enabled"]:
         raise ValueError(f"Unsupported source: {source}")
     cfg = cfgs[source]
-    fetcher = fetcher or Fetcher(cfg["min_interval"])
+    fetcher = fetcher or Fetcher(cfg["min_interval"], allowed_hosts=cfg.get("allowed_hosts"))
     robots = fetcher.check_robots(cfg["base_url"])
+    for extra in cfg.get("extra_robots", []):
+        robots += "; " + fetcher.check_robots(extra)
     events, report = discover(fetcher, cfg, start, end, include_schedule=include_schedule)
     state_path = root / "data/state" / f"{source}.json"
     state = read_json(state_path, {"urls": {}})
@@ -78,10 +85,15 @@ def run(
                     "url": url,
                     "event_date": item["event_date"],
                     "discovered_as": item.get("discovered_as", "schedule"),
+                    "fetch_url": item.get("fetch_url", url),
+                    "venue_hint": item.get("venue_hint"),
                 },
             )
     events = sorted(known.values(), key=lambda e: (e["event_date"], e["url"]))
-    selected = events[:limit] if limit is not None else events
+    candidates = (
+        [e for e in events if state["urls"].get(e["url"], {}).get("error")] if retry_failed else events
+    )
+    selected = candidates[:limit] if limit is not None else candidates
     report.update(
         source=source,
         date_from=start.isoformat(),
@@ -108,14 +120,21 @@ def run(
             item = state["urls"][url]
             try:
                 # Full recheck intentionally avoids conditional 304 parser-version ambiguities.
-                response = fetcher.get(url)
+                response = fetcher.get(event.get("fetch_url", url))
                 report["fetched"] += 1
                 html = response.text
                 raw = root / "var/raw" / source / f"{digest(html)}.html.gz"
                 raw.parent.mkdir(parents=True, exist_ok=True)
                 if not raw.exists():
                     raw.write_bytes(gzip.compress(html.encode(), mtime=0))
-                extracted = parse_event(html, url, discovered_as=event["discovered_as"])
+                if source == "noah":
+                    extracted = parse_event(
+                        html, url, discovered_as=event["discovered_as"], venue_hint=event.get("venue_hint")
+                    )
+                else:
+                    from .adapters import parse_official
+
+                    extracted = parse_official(source, html, url, event)
                 oid, changed = save_observation(root, extracted, html)
                 report["changed" if changed else "unchanged"] += 1
                 report["unpublished"] += int(extracted["attendance_reported"] is None)
@@ -177,5 +196,6 @@ def run(
             }
             atomic(root / "data/coverage" / source / f"{key}.json", dumps(coverage) + "\n")
     atomic(root / "data/coverage" / source / "latest_run.json", dumps(report) + "\n")
+    atomic(root / "data/coverage" / source / f"run_{start}_{end}.json", dumps(report) + "\n")
     atomic(root / "var/run-summary.json", dumps(report) + "\n")
     return report
