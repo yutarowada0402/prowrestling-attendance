@@ -20,9 +20,9 @@ on:
         type: boolean
         default: false
         description: Retain changed fetched HTML for 7 days
-  # Enable only after successful manual runs; 06:17 JST = 21:17 UTC previous day.
-  # schedule:
-  #   - cron: '17 21 * * *'
+  # Enabled after successful manual run 43583200939; 06:17 JST = 21:17 UTC previous day.
+  schedule:
+    - cron: '17 21 * * *'
 permissions:
   contents: read
 concurrency:

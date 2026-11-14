@@ -58,13 +58,13 @@ uv run wrestling validate
 ## GitHub Actions
 
 - `ci.yml`: push/PRでオフラインparser・保存・集計テスト、合成fixtureのdbt build、追跡データのdbt buildと品質テスト。外部サイトを巡回しません。
-- `collect.yml`: 最初はworkflow_dispatchのみ。mainの前回データをcheckout→収集→dbt build→export→品質検証→変更があるdata/exportsだけcommit/push。GITHUB_TOKENで永続化します。Artifact/キャッシュは正本ではありません。
+- `collect.yml`: workflow_dispatchと日次cron（手動実行成功後に有効化）。mainの前回データをcheckout→収集→dbt build→export→品質検証→変更があるdata/exportsだけcommit/push。GITHUB_TOKENで永続化します。Artifact/キャッシュは正本ではありません。
 - 手動backfillは mode=collect、date_from/to、limit（0〜500、最大367日）を指定。updateは直近30日。入力は環境変数からPythonで検証し、シェルへ直接展開しません。
 - concurrencyで同時更新防止。品質失敗ならcommitしません。収集だけ部分失敗した場合は正常データと失敗stateを検証後commitし、ジョブは最後に失敗表示します。summaryに取得・変更・不変・失敗・未公表・競合・期間を出します。
 - 書込権限はcollectジョブだけcontents:write、他はread。push競合は通常pushの拒否で明示失敗し、force push/rebaseで上書きしません。GITHUB_TOKENによるデータcommitから収集は再帰起動しません（収集トリガーは手動/将来cronのみ）。
 - ブランチ保護でbotのpushが拒否される場合は、管理者が当該データ更新を許すルールを設定するか、収集を専用ブランチへpushしPRを作る方式へ変更してください。MVPはmain直接保存です。
 - 診断ログとdbt結果を7日Artifactへ。save_html=trueのとき、当該Actions実行で取得したHTMLも7日保存。期限切れ後は元HTMLを復元できません。長期監査が必要なら別ストレージに拡張してください。
-- 日次cronは手動実行の安定確認後に有効化します。設定値は `17 21 * * *` UTC = 翌日06:17 JST。GitHubの定期実行は遅延し得ます。10年分のbackfillを日次へ混ぜません。
+- 日次cronは手動実行と保存commitの成功を確認して有効化済みです。設定値は `17 21 * * *` UTC = 翌日06:17 JST。GitHubの定期実行は遅延し得ます。10年分のbackfillを日次へ混ぜません。初回の時刻指定起動は次の定期実行で確認します。
 
 ```bash
 gh workflow run collect.yml --ref main -f mode=collect \

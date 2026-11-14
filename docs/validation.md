@@ -29,7 +29,11 @@ https://github.com/yutarowada0402/prowrestling-attendance
 
 ## GitHub Actions
 
-CIと手動収集の実行結果はpush後に追記する。日次cronは手動実行成功まで無効。
+- クリーンcheckoutからの[CI実行](https://github.com/yutarowada0402/prowrestling-attendance/actions/runs/43583186658): success。uv sync --frozen、ruff、19 pytest（fixture内のdbt build含む）、追跡96件のdbt build/exportが完走。
+- [手動収集実行](https://github.com/yutarowada0402/prowrestling-attendance/actions/runs/43583200939): success。2025年全一覧を発見し、limit=3で詳細再取得3、変更0、不変3、失敗0。JSONLは96行のまま。件数制限実行なのでrun statusはpartialと正確に表示。
+- GITHUB_TOKENでstate/coverageの変更がmainへ保存されたcommit: [e5f2210](https://github.com/yutarowada0402/prowrestling-attendance/commit/e5f2210)。force pushなし。ローカルへfast-forwardで取得して観測数96を確認。
+- 診断Artifactの `var/run-summary.json` をダウンロードして上の件数を確認。本文HTMLのArtifact保存は任意フラグで、初回は無効。
+- 手動実行・保存commit成功後に日次cron `17 21 * * *` を有効化。06:17 JST相当、直近30日を更新。初回の時刻指定による自動起動は未検証（次の実行で確認）。
 
 ## 次に必要な作業
 
