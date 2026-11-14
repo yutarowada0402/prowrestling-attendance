@@ -1,0 +1,8 @@
+primary_promotion_id,weekday,events_held,attendance_known,attendance_total,attendance_mean,attendance_median,attendance_known_rate
+noah,1,15,7,6982,997.4285714285714,1189.0,0.4666666666666667
+noah,2,6,6,7789,1298.1666666666667,1529.0,1.0
+noah,3,3,3,6114,2038.0,705.0,1.0
+noah,4,5,5,2564,512.8,480.0,1.0
+noah,5,7,7,3906,558.0,484.0,1.0
+noah,6,32,32,25880,808.75,391.5,1.0
+noah,7,28,28,16919,604.25,418.0,1.0

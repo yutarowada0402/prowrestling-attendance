@@ -1,0 +1,93 @@
+name: Collect NOAH
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        type: choice
+        options: [update, collect]
+        default: update
+        description: update = last 30 days; collect = bounded backfill
+      date_from:
+        default: '2025-01-01'
+        description: Backfill start (inclusive)
+      date_to:
+        default: '2025-12-31'
+        description: Backfill end (inclusive)
+      limit:
+        default: '100'
+        description: Max detail requests (0..500)
+      save_html:
+        type: boolean
+        default: false
+        description: Retain changed fetched HTML for 7 days
+  # Enable only after successful manual runs; 06:17 JST = 21:17 UTC previous day.
+  # schedule:
+  #   - cron: '17 21 * * *'
+permissions:
+  contents: read
+concurrency:
+  group: noah-data-main
+  cancel-in-progress: false
+jobs:
+  collect:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --frozen
+      - run: mkdir -p var
+      - name: Collect and retain partial failures
+        id: collect
+        continue-on-error: true
+        env:
+          COLLECT_MODE: ${{ inputs.mode || 'update' }}
+          COLLECT_FROM: ${{ inputs.date_from }}
+          COLLECT_TO: ${{ inputs.date_to }}
+          COLLECT_LIMIT: ${{ inputs.limit || '100' }}
+        run: uv run --frozen python scripts/actions_collect.py
+      - name: Build, export and gate persistence on quality
+        run: |
+          uv run --frozen wrestling build
+          uv run --frozen wrestling export
+          uv run --frozen wrestling validate
+      - name: Commit validated updates only
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data exports
+          if ! git diff --cached --quiet; then
+            git commit -m 'data: update NOAH observations and exports'
+            git push origin HEAD:main
+          fi
+      - name: Summary
+        if: always()
+        run: uv run --frozen python scripts/actions_summary.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: collection-diagnostics-${{ github.run_id }}
+          path: |
+            var/collect.log
+            var/run-summary.json
+            data/coverage/
+            dbt/logs/
+            dbt/target/run_results.json
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        if: always() && inputs.save_html
+        with:
+          name: fetched-html-${{ github.run_id }}
+          path: var/raw/
+          retention-days: 7
+      - name: Mark incomplete collection as failure
+        if: steps.collect.outcome == 'failure'
+        run: exit 1

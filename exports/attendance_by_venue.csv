@@ -1,0 +1,44 @@
+primary_promotion_id,venue_id,venue,events_held,attendance_known,attendance_total,attendance_mean,attendance_median,attendance_known_rate
+noah,budokan,日本武道館,1,1,5088,5088.0,5088.0,1.0
+noah,gmesse_main,Gメッセ群馬メインホール,1,1,390,390.0,390.0,1.0
+noah,korakuen,後楽園ホール,17,17,24609,1447.5882352941176,1550.0,1.0
+noah,shimada_sub,島田市総合スポーツセンター サブアリーナ,1,1,409,409.0,409.0,1.0
+noah,unclassified_1665908ef88eb849f4b5ee1e52318c69,埼玉・ウェスタ川越 多目的ホール,1,1,359,359.0,359.0,1.0
+noah,unclassified_18aae31746fb63922232c230328ccd94,香川・高松シンボルタワー 1F展示場,1,1,394,394.0,394.0,1.0
+noah,unclassified_19126f4c3aa65fa20296cf2105121839,福島・会津若松市文化センター,1,1,260,260.0,260.0,1.0
+noah,unclassified_19c1ed99cfacf06e3343d7d4fda403bb,福岡・アクロス福岡イベントホール,2,2,1126,563.0,563.0,1.0
+noah,unclassified_1eb3068e0e9d77eeca1e3366e28bb381,埼玉・イコス上尾,1,1,241,241.0,241.0,1.0
+noah,unclassified_1f418ccc67a1ecc9214d13ffcbb92e81,富山・高岡エクール,1,1,390,390.0,390.0,1.0
+noah,unclassified_27f2e4d3a90314369c52d61452d16bf7,埼玉・えすぽわーる伊佐沼,1,1,304,304.0,304.0,1.0
+noah,unclassified_3275acf7154c1ecf2758a843c3da40ca,神奈川・横浜武道館,1,1,1605,1605.0,1605.0,1.0
+noah,unclassified_32e8cc4363bd0a54f3d66ed5cb146c83,山形・山形ビッグウイング,1,1,315,315.0,315.0,1.0
+noah,unclassified_37abe024f8d773fc8301b7846eb2e319,宮城・仙台PIT,2,2,708,354.0,354.0,1.0
+noah,unclassified_40172d4ca5a83f0e0b9d4b4a72a843a6,東京・新木場1stRING,5,2,527,263.5,263.5,0.4
+noah,unclassified_446e74e4755b5901ef161b0428f9824a,東京・新宿FACE,9,5,2006,401.2,381.0,0.5555555555555556
+noah,unclassified_44d9c72a4637c09f1b6cdc5781299201,宮城・仙台サンプラザホール,1,1,832,832.0,832.0,1.0
+noah,unclassified_4f147318b74e0deb352d91c2735b08f8,岡山・岡山コンベンションセンター　1階イベントホール,1,1,420,420.0,420.0,1.0
+noah,unclassified_512d737064dd3005c91595325cb66107,大阪・梅田スカイビル ステラホール,1,1,422,422.0,422.0,1.0
+noah,unclassified_51c9fd5941edd65a5b3a13d72c720612,石川・石川県産業展示館3号館,1,1,1141,1141.0,1141.0,1.0
+noah,unclassified_5a49f5add9f16fb1bb8154d321e43622,新潟・新潟市体育館,1,1,1092,1092.0,1092.0,1.0
+noah,unclassified_5f55eb2f0cf09162a1e12b8652263ab8,神奈川・カルッツかわさき,1,1,1757,1757.0,1757.0,1.0
+noah,unclassified_606cb8df11ea0837ccc0f31df9987f8b,熊本・熊本城ホールシビックホール,2,2,1022,511.0,511.0,1.0
+noah,unclassified_6cfc533ef3291e97a9db57caf3f9f4ca,東京・東京たま未来メッセ,2,2,988,494.0,494.0,1.0
+noah,unclassified_7eaeb963dcae3e9cf094fc243b465367,静岡・アクトシティ浜松,3,3,1123,374.3333333333333,351.0,1.0
+noah,unclassified_82823efec6a11401387e32d1e62cf429,新潟・万代島多目的広場大かま,1,1,721,721.0,721.0,1.0
+noah,unclassified_94685aec45aecaaa9e4bb11f11dd5dc6,群馬・Gメッセ群馬メインホール,1,1,434,434.0,434.0,1.0
+noah,unclassified_9561e8ffdd6098abdbb1d32fa4958ab7,京都・KBSホール,1,1,406,406.0,406.0,1.0
+noah,unclassified_999e577c96501308af1ca610093916f1,東京・両国国技館,2,2,8138,4069.0,4069.0,1.0
+noah,unclassified_9b7ab38e327f6ddc8219ae88a78f6722,富山・ボルファートとやま,1,1,255,255.0,255.0,1.0
+noah,unclassified_9be4969f7c86109c23559d09962fa4ac,東京・品川ステラボール,1,0,,,,0.0
+noah,unclassified_a7dbdf263d49a0490a8bbdc39c8d87e0,愛知・Lives NAGOYA,3,3,1187,395.6666666666667,402.0,1.0
+noah,unclassified_adf301988f2bcd06cf2e83fe96df861e,静岡・ふじさんめっせ,1,1,314,314.0,314.0,1.0
+noah,unclassified_b0e0f327229b5e7d8979ae55d6429b4c,静岡・キラメッセぬまづ,1,1,309,309.0,309.0,1.0
+noah,unclassified_bc3e466f10b3a79e24f06b35f4a5d4bd,埼玉・春日部ふれあいキューブ,2,2,981,490.5,490.5,1.0
+noah,unclassified_ca0dba03b482453c14fd6e8aa6c0a233,神奈川・横浜ラジアントホール,9,9,2552,283.55555555555554,282.0,1.0
+noah,unclassified_ceb67c11915093b1ef82befdea16ccff,埼玉・ところざわサクラタウン ジャパンパビリオンホールA,1,1,352,352.0,352.0,1.0
+noah,unclassified_cef195b69812cfd973a02dc410353daf,大阪・豊中市176BOX,1,1,292,292.0,292.0,1.0
+noah,unclassified_d50064e473e1c7e1f83ca5d88e39f6db,広島・広島産業会館 東展示館,2,2,975,487.5,487.5,1.0
+noah,unclassified_d97eb28b7128df4615a5ba43e7eed307,大阪・エディオンアリーナ大阪第2競技場,5,5,3767,753.4,722.0,1.0
+noah,unclassified_de0614c8de07376c42c9ad905c950219,兵庫・神戸サンボーホール,1,1,414,414.0,414.0,1.0
+noah,unclassified_e4e10140adf1ef54943fdc04f14cf1ee,栃木・ライトキューブ宇都宮,2,2,868,434.0,434.0,1.0
+noah,unclassified_ee0aa1537bfbf82dd351194a7e06408e,神奈川・保土ヶ谷公会堂,2,2,661,330.5,330.5,1.0

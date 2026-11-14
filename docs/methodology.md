@@ -1,0 +1,25 @@
+# 集計と採用ルール
+
+日付に依存しない初期大会IDは `data/mappings/event_ids.csv` に永続化する。buildは未登録のsource大会IDだけを追加して既存対応を保持し、overrideをその上へ適用する。全団体合計は `attendance_overall` として別出力する。
+
+基本母集団は `country_code=JP AND event_status=held`。日程の現地日付を使う。過去の日付に加え結果一覧から発見した事実を開催証拠とする。予定一覧だけにあり過去日かつ観衆がないページは unknown。未来日は scheduled。タイトル中の明示的中止・延期を優先。本文中の別大会の告知や中止文字列では判定しない。
+
+団体だけを根拠に国内扱いしない。会場原文の日本地域接頭辞または手動会場マスターからJPを判定し、未知はNULL。会場地理情報は手動seedを優先し、未知会場の都道府県・市区町村は未分類。命名権変更・移転は別IDのマスターで管理する。曜日は現地日付からISO曜日（1=月、7=日）。開始時刻不明はNULL。
+
+大会IDは `evt_<source>_<source_event_id>` で、日時訂正では変わらない。永続的なsource ID自体が対応表の鍵となる。別情報源の同一大会は `data/overrides/events.csv` の event_id を同じにした場合のみ統合。日付・会場一致は merge_candidates に出すだけ。昼夜は別source IDを維持。同じsource IDを分割する場合はoverrideに異なるevent_idの行を複数置く。分割後の各観客数は理由つきで明示指定する。
+
+overrideは source/source_event_id と reason 必須。空セルは元値継承、attendance_reported=0は明示0への修正。観客数を手動NULL化する操作はMVP未対応。primary_promotion_id が主集計先、promotion_ids は `|` 区切り。共催関係の詳細roleは資料未確認のため organizer_unspecified。主催法人CyberFightとNOAHブランドは異なる概念。NOAH公式掲載大会をデフォルトNOAHに割当て、合同興行は手動確認して修正する。
+
+MVPの情報源は公式NOAHのみ（同一優先度）。最終確認された観測を選び、stateがなければ最後の fetched_at にフォールバック。同じ抽出結果は observation_id が同一になり、履歴行を増やさない。既存値への復帰はstateの last_observation_idで選択できる。stateも正本の一部であり、これを捨てると過去値への復帰後の選択を再現できない場合がある。抽出内容の訂正は元観測と別行で保持。抽出内容ハッシュは分析項目とparser_versionから作成し、取得日時やHTML広告変更は含めない。response_hashはHTML全体のSHA-256。
+
+後日観衆が空欄になった場合、過去の最後の数値を保持し attendance_disappeared と conflict_flag を立てる。複数対応元で観衆が異なる場合も競合。手動観客数が最優先、その後は数値のある直近観測を採用する。元URL・原文・採用観測ID・override理由を出力する。将来二次ソースを追加するときは公式優先順位カラムを実装してから有効化する。
+
+開催興行数はユニークevent_id。観客数不明でも開催件数に入れる。数値不明はNULL、明示的無観客のみ0。合計は判明値だけを加え、判明0件ならNULL。平均・中央値は判明値だけ、判明率は判明件数÷開催件数。全団体値は fct_events のIDを重複排除して作る。共催参考表は別出力で、団体値を足して全体合計にしない。
+
+月別前年比は前年同月へ明示joinし、比較値が0または欠損ならNULL。YTDは各年の最終収集開催日をcutoffとし、前年同月日（2/29はDuckDBの1年間隔で2/28）まで比較する。coverageが不足していても数値は計算されるため、比較時は必ずcoverageを併読する。
+
+公表観衆合計の増減分解は、観衆判明興行数 N と判明平均 A に対し、件数効果 `(N1-N0)*A0`、平均効果 `N1*(A1-A0)`。合計差に一致するが、判明率の変化を含む。全開催件数の増減率と判明平均の増減率も併記し、欠損を仮の0人として補わない。
+
+coverageの listing_complete は「指定期間の当該サイト一覧と発見済みURLを取得できた」の意味に限る。partial は制限付き・一部失敗、unsupported は年選択肢がない年。月途中の指定は scope_from/to に残す。掲載されていない大会の有無は検証できず、観衆判明率とは別の指標。
+
+公表観衆はユニーク観戦者数・有料入場者数・売上ではない。会場稼働率推定は行わない。

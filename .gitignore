@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+var/
+*.duckdb*
+*.parquet
+dbt/target/
+dbt/logs/
+.env
+*.html
+!tests/fixtures/*.html

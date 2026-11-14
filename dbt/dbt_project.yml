@@ -1,0 +1,11 @@
+name: wrestling
+version: '1.0.0'
+config-version: 2
+profile: wrestling
+model-paths: [models]
+test-paths: [tests]
+models:
+  wrestling:
+    +materialized: table
+flags:
+  send_anonymous_usage_stats: false

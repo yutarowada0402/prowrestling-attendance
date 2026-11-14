@@ -1,0 +1,8 @@
+noah:
+  base_url: https://www.noah.co.jp
+  listing_path: /result/
+  schedule_path: /schedule/
+  min_interval: 3
+  max_pages: 100
+  priority: 1
+  enabled: true

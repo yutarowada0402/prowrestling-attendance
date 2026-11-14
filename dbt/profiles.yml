@@ -1,0 +1,7 @@
+wrestling:
+  target: local
+  outputs:
+    local:
+      type: duckdb
+      path: "{{ env_var('WRESTLING_DB_PATH', '../var/attendance.duckdb') }}"
+      threads: 1

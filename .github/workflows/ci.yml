@@ -1,0 +1,33 @@
+name: CI
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  offline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --frozen
+      - run: uv run --frozen ruff check .
+      - name: Offline parser, persistence and synthetic fixture dbt builds
+        run: uv run --frozen pytest -q
+      - name: Build and validate tracked data offline
+        run: |
+          uv run --frozen wrestling build
+          uv run --frozen wrestling export
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ci-diagnostics
+          path: |
+            dbt/logs/
+            dbt/target/run_results.json
+          retention-days: 7

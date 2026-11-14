@@ -1,0 +1,5 @@
+primary_promotion_id,prefecture,events_held,attendance_known,attendance_total,attendance_mean,attendance_median,attendance_known_rate
+noah,未分類,76,68,39658,583.2058823529412,398.0,0.8947368421052632
+noah,東京都,18,18,29697,1649.8333333333333,1555.0,1.0
+noah,群馬県,1,1,390,390.0,390.0,1.0
+noah,静岡県,1,1,409,409.0,409.0,1.0

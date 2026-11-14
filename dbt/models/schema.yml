@@ -1,0 +1,21 @@
+version: 2
+models:
+  - name: fct_events
+    columns:
+      - name: event_id
+        data_tests: [unique, not_null]
+      - name: event_date
+        data_tests: [not_null]
+      - name: event_status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [held, scheduled, cancelled, postponed, unknown]
+  - name: stg_observations
+    columns:
+      - name: observation_id
+        data_tests: [unique, not_null]
+  - name: dim_venues
+    columns:
+      - name: venue_id
+        data_tests: [unique, not_null]

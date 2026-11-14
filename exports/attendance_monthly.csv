@@ -1,0 +1,13 @@
+primary_promotion_id,month,events_held,attendance_known,attendance_total,attendance_mean,attendance_median,attendance_known_rate,previous_events_held,previous_attendance_total,previous_attendance_mean,attendance_yoy,events_yoy,mean_yoy,known_event_count_effect,known_event_mean_effect
+noah,2025-01,8,8,9509,1188.625,525.0,1.0,,,,,,,,
+noah,2025-02,7,7,4253,607.5714285714286,484.0,1.0,,,,,,,,
+noah,2025-03,8,8,4943,617.875,316.5,1.0,,,,,,,,
+noah,2025-04,7,7,5694,813.4285714285714,722.0,1.0,,,,,,,,
+noah,2025-05,9,8,7873,984.125,322.0,0.8888888888888888,,,,,,,,
+noah,2025-06,10,6,3666,611.0,421.5,0.6,,,,,,,,
+noah,2025-07,8,8,6263,782.875,407.5,1.0,,,,,,,,
+noah,2025-08,6,6,5771,961.8333333333334,826.5,1.0,,,,,,,,
+noah,2025-09,9,9,7056,784.0,617.0,1.0,,,,,,,,
+noah,2025-10,8,5,5578,1115.6,411.0,0.625,,,,,,,,
+noah,2025-11,9,9,5282,586.8888888888889,422.0,1.0,,,,,,,,
+noah,2025-12,7,7,4266,609.4285714285714,321.0,1.0,,,,,,,,
