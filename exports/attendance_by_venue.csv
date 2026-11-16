@@ -1,5 +1,5 @@
 primary_promotion_id,venue_id,venue,events_held,attendance_known,attendance_total,attendance_mean,attendance_median,attendance_known_rate
-ajpw,korakuen,後楽園ホール,16,14,17051,1217.9285714285713,1255.5,0.875
+ajpw,korakuen,後楽園ホール,17,15,18562,1237.4666666666667,1276.0,0.8823529411764706
 ajpw,shinkiba_1st,新木場1stRING,12,7,2341,334.42857142857144,339.0,0.5833333333333334
 ajpw,unclassified_07b9ae417c02ad9803324e012248dbb6,エスフォルタアリーナ八王子 メインアリーナ,1,1,1870,1870.0,1870.0,1.0
 ajpw,unclassified_0e08751c9eb3d257fd0a0c723baf6a1a,アリーナ立川立飛,1,1,1750,1750.0,1750.0,1.0
@@ -285,7 +285,7 @@ noah,unclassified_a1de5921d1fe4ea4d814a2c68fddd98c,仙台サンプラザホー�
 noah,unclassified_a609a7c5ce22e2f28841921df4a886a0,高岡エクール,3,2,705,352.5,352.5,0.6666666666666666
 noah,unclassified_a6198d3fd4777deb3c797f84a18cb5e7,札幌ススキノ・マルスジム,2,2,780,390.0,390.0,1.0
 noah,unclassified_a6ede9afb3d79e0c567d87e5dc9c2ab7,広島県立広島産業会館　西展示館,1,1,388,388.0,388.0,1.0
-noah,unclassified_a7dbdf263d49a0490a8bbdc39c8d87e0,愛知・Lives NAGOYA,4,3,1187,395.6666666666667,402.0,0.75
+noah,unclassified_a7dbdf263d49a0490a8bbdc39c8d87e0,愛知・Lives NAGOYA,4,4,1589,397.25,402.0,1.0
 noah,unclassified_aaee8958f1afa1d54bbfe73c9941bbd4,国立代々木競技場第2体育館,1,1,872,872.0,872.0,1.0
 noah,unclassified_abce714ad2758451038316f5dc60a8ff,国立代々木競技場 第二体育館,1,1,917,917.0,917.0,1.0
 noah,unclassified_aca1d1d3fbeed3a61a2bf212abc3e2fc,日本武道館,3,2,12681,6340.5,6340.5,0.6666666666666666
